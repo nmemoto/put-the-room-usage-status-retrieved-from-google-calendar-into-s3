@@ -1,18 +1,26 @@
-import * as sns from '@aws-cdk/aws-sns';
-import * as subs from '@aws-cdk/aws-sns-subscriptions';
-import * as sqs from '@aws-cdk/aws-sqs';
+import { Rule, Schedule } from '@aws-cdk/aws-events';
+import * as eventsTargets from '@aws-cdk/aws-events-targets';
+import * as lambda from '@aws-cdk/aws-lambda';
+import * as nodejs from '@aws-cdk/aws-lambda-nodejs';
+import * as logs from '@aws-cdk/aws-logs';
 import * as cdk from '@aws-cdk/core';
 
 export class AppStack extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
+  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const queue = new sqs.Queue(this, 'AppQueue', {
-      visibilityTimeout: cdk.Duration.seconds(300)
-    });
+    const fn = new nodejs.NodejsFunction(this, 'TestFunction', {
+      handler: 'handler',
+      entry: 'app/lambda/index.ts',
+      runtime: lambda.Runtime.NODEJS_12_X,
+      logRetention: logs.RetentionDays.ONE_MONTH
+   });
 
-    const topic = new sns.Topic(this, 'AppTopic');
-
-    topic.addSubscription(new subs.SqsSubscription(queue));
+   const rule = new Rule(this, 'TestFunctionRule', {
+      schedule: Schedule.expression("cron(0/1 * * * ? *)"),
+      targets: [
+        new eventsTargets.LambdaFunction(fn)
+      ]
+    })
   }
 }
