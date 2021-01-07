@@ -4,6 +4,7 @@ import * as lambda from '@aws-cdk/aws-lambda';
 import * as nodejs from '@aws-cdk/aws-lambda-nodejs';
 import * as logs from '@aws-cdk/aws-logs';
 import * as cdk from '@aws-cdk/core';
+import { Duration } from '@aws-cdk/core';
 
 export class AppStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -16,6 +17,7 @@ export class AppStack extends cdk.Stack {
       entry: 'app/lambda/index.ts',
       runtime: lambda.Runtime.NODEJS_12_X,
       logRetention: logs.RetentionDays.ONE_MONTH,
+      timeout: Duration.seconds(10),
       environment: {
         "CALENDAR_IDS": calendarIds.join(",")
       }
