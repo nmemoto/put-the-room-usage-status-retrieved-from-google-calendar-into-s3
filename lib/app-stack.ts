@@ -3,14 +3,15 @@ import * as eventsTargets from '@aws-cdk/aws-events-targets';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as nodejs from '@aws-cdk/aws-lambda-nodejs';
 import * as logs from '@aws-cdk/aws-logs';
+import { IBucket } from '@aws-cdk/aws-s3';
 import * as cdk from '@aws-cdk/core';
 import { Duration } from '@aws-cdk/core';
 
 export class AppStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: cdk.Construct, id: string, bucket: IBucket, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const calendarIds: string[] = this.node.tryGetContext('calendarIds');
+    const calendarList: string[] = this.node.tryGetContext('calendarList');
 
     const fn = new nodejs.NodejsFunction(this, 'TestFunction', {
       handler: 'handler',
@@ -19,7 +20,7 @@ export class AppStack extends cdk.Stack {
       logRetention: logs.RetentionDays.ONE_MONTH,
       timeout: Duration.seconds(10),
       environment: {
-        "CALENDAR_IDS": JSON.stringify(calendarIds)
+        "CALENDAR_LIST": JSON.stringify(calendarList)
       }
    });
 
@@ -29,5 +30,7 @@ export class AppStack extends cdk.Stack {
         new eventsTargets.LambdaFunction(fn)
       ]
     })
+
+    bucket.grantReadWrite(fn)
   }
 }
