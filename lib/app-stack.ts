@@ -19,7 +19,7 @@ export class AppStack extends cdk.Stack {
       logRetention: logs.RetentionDays.ONE_MONTH,
       timeout: Duration.seconds(10),
       environment: {
-        "CALENDAR_IDS": calendarIds.join(",")
+        "CALENDAR_IDS": JSON.stringify(calendarIds)
       }
    });
 

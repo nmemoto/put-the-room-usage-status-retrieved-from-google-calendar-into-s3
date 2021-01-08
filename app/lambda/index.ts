@@ -11,7 +11,6 @@ export async function handler(event: ScheduledEvent) {
         const nextJstDate = addDays(jstDate, 1)
         const date = format(jstDate,'yyyy-MM-dd')
         const nextDate = format(nextJstDate,'yyyy-MM-dd')
-        const calendarIds = process.env.CALENDAR_IDS!.split(',')
         const auth = new google.auth.JWT(
             credentials.client_email,
             undefined,
@@ -21,9 +20,10 @@ export async function handler(event: ScheduledEvent) {
         const dayRangeStart = `${date}T00:00:00+09:00`
         const dayRangeEnd = `${nextDate}T00:00:00+09:00`
 
-        for(let id of calendarIds){
+        const calendarList = JSON.parse(process.env.CALENDAR_LIST!) as {name: string, calendarId: string}[]
+        for(let { name, calendarId } of calendarList){
             const list = await calendar.events.list({
-                calendarId: id,
+                calendarId: calendarId,
                 timeMin: dayRangeStart,
                 timeMax: dayRangeEnd,
                 timeZone: 'Asia/Tokyo',
@@ -34,6 +34,7 @@ export async function handler(event: ScheduledEvent) {
                     end: item.end?.dateTime
                 }
             })
+            console.info(name)
             console.info(meetingTimeList)
             const dayStart = strToJST(dayRangeStart)
             const obj: {[key: string]: number} = {}
@@ -59,7 +60,9 @@ function strToJST(time: string) {
 }
 
 function objectToCSV(obj: {[key: string]: number}) {
-    return Object.keys(obj).sort().map(key => {
+    const header = `time,usage\n`
+    const body = Object.keys(obj).sort().map(key => {
         return key +','+obj[key]
     }).join('\n')
+    return `${header}${body}`
 }
