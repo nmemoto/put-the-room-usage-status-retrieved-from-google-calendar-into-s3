@@ -38,5 +38,5 @@ GCPのサービスアカウント
 `credentails.json`と`cdk.context.json`を用意して以下のコマンドを実行する
 
 ```shell
-cdk deploy
+cdk deploy --all
 ```
