@@ -1,6 +1,6 @@
-# show-google-calendar-with-aws-lambda
+# put-the-room-usage-status-retrieved-from-google-calendar-into-s3
 
-CloudWatch Event によって駆動された Lambda が任意のユーザー・会議室の google calendar の実行日のみの予定を取得し、CloudWatch Logs に5分毎のその1日の予定の埋まり具合(埋まっている: 1, 埋まっていない: 0)をCSVで出力する
+CloudWatch Event によって駆動された Lambda が任意のユーザー・会議室の google calendar の実行日のみの予定を取得し、5分毎のその1日の予定の埋まり具合(埋まっている: 1, 埋まっていない: 0)をCSVでS3に出力する
 
 ## 準備するもの
 

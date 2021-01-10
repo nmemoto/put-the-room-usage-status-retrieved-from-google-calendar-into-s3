@@ -36,7 +36,7 @@ export async function handler(event: ScheduledEvent) {
                 timeMax: dayRangeEnd,
                 timeZone: 'Asia/Tokyo',
             })
-            const meetingTimeList = list.data.items!.map(item => {
+            const scheduleList = list.data.items!.map(item => {
                 return {
                     start: item.start?.dateTime,
                     end: item.end?.dateTime
@@ -47,7 +47,7 @@ export async function handler(event: ScheduledEvent) {
             for (let i = 0; i < 60/5 * 24; i++) {
                 const date = addMinutes(dayStart, i * 5)
                 const dateFormat = format(date,'HH:mm')
-                if (meetingTimeList.some(time => isWithinInterval(date, {start: strToJST(time.start!), end: strToJST(time.end!)}))) {
+                if (scheduleList.some(time => isWithinInterval(date, {start: strToJST(time.start!), end: strToJST(time.end!)}))) {
                     obj[dateFormat] = 1
                 } else {
                     obj[dateFormat] = 0

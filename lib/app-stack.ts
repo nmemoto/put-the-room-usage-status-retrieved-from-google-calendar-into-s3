@@ -13,7 +13,7 @@ export class AppStack extends cdk.Stack {
 
     const calendarList: string[] = this.node.tryGetContext('calendarList');
 
-    const fn = new nodejs.NodejsFunction(this, 'TestFunction', {
+    const fn = new nodejs.NodejsFunction(this, 'roomUsageToBucketFunction', {
       handler: 'handler',
       entry: 'app/lambda/index.ts',
       runtime: lambda.Runtime.NODEJS_12_X,
@@ -25,7 +25,7 @@ export class AppStack extends cdk.Stack {
       }
    });
 
-   const rule = new Rule(this, 'TestFunctionRule', {
+   const rule = new Rule(this, 'roomUsageToBucketFunctionRule', {
       schedule: Schedule.expression("cron(0 21 * * ? *)"),
       targets: [
         new eventsTargets.LambdaFunction(fn)

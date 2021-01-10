@@ -6,8 +6,7 @@ export class StoreStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const bucket = new Bucket(this, "calendarBucket", {
-      versioned: false,
+    const bucket = new Bucket(this, "roomUsageBucket", {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     })
     this._bucket = bucket
