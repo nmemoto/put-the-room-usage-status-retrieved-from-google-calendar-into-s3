@@ -1,8 +1,16 @@
 import { ScheduledEvent } from 'aws-lambda';
+import { ManagedUpload, PutObjectRequest } from 'aws-sdk/clients/s3';
 import { addDays, addMinutes, format, isWithinInterval, parseISO } from 'date-fns';
 import { utcToZonedTime } from 'date-fns-tz';
 import { google } from 'googleapis';
+import S3 = require('aws-sdk/clients/s3');
 const credentials = require('../../credentials.json');
+
+const bucketName = process.env.BUCKET_NAME!
+
+const s3 = new S3({
+    region: 'ap-northeast-1'
+})
 
 export async function handler(event: ScheduledEvent) {
     try {
@@ -34,8 +42,6 @@ export async function handler(event: ScheduledEvent) {
                     end: item.end?.dateTime
                 }
             })
-            console.info(name)
-            console.info(meetingTimeList)
             const dayStart = strToJST(dayRangeStart)
             const obj: {[key: string]: number} = {}
             for (let i = 0; i < 60/5 * 24; i++) {
@@ -48,7 +54,19 @@ export async function handler(event: ScheduledEvent) {
                 }
             }
             const csvStr = objectToCSV(obj)
-            console.info(csvStr)
+            const params: PutObjectRequest = {
+                Bucket: bucketName,
+                Key: `${date}/${name}.csv`,
+                Body: csvStr,
+                ContentType: 'text/csv'
+            }
+            s3.upload(params, undefined,(err: Error, data: ManagedUpload.SendData) => {
+                if (err) {
+                    console.error(err)
+                } else {
+                    console.info('Successfully uploaded file.', data)
+                }
+            })
         }
     } catch (err) {
         console.error(err)
