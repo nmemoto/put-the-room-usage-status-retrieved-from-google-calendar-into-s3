@@ -1,6 +1,6 @@
 import { ScheduledEvent } from 'aws-lambda';
 import { ManagedUpload, PutObjectRequest } from 'aws-sdk/clients/s3';
-import { addDays, addMinutes, format, isWithinInterval, parseISO } from 'date-fns';
+import { addDays, addMinutes, addSeconds, format, isWithinInterval, parseISO } from 'date-fns';
 import { utcToZonedTime } from 'date-fns-tz';
 import { google } from 'googleapis';
 import S3 = require('aws-sdk/clients/s3');
@@ -45,7 +45,7 @@ export async function handler(event: ScheduledEvent) {
             const dayStart = strToJST(dayRangeStart)
             const obj: {[key: string]: number} = {}
             for (let i = 0; i < 60/5 * 24; i++) {
-                const date = addMinutes(dayStart, i * 5)
+                const date = addSeconds(addMinutes(dayStart, i * 5), 1)
                 const dateFormat = format(date,'HH:mm')
                 if (scheduleList.some(time => isWithinInterval(date, {start: strToJST(time.start!), end: strToJST(time.end!)}))) {
                     obj[dateFormat] = 1
