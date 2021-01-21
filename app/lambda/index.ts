@@ -43,14 +43,15 @@ export async function handler(event: ScheduledEvent) {
                 }
             })
             const dayStart = strToJST(dayRangeStart)
-            const obj: {[key: string]: number} = {}
+            const obj: {[key: string]: boolean} = {}
             for (let i = 0; i < 60/5 * 24; i++) {
-                const date = addSeconds(addMinutes(dayStart, i * 5), 1)
-                const dateFormat = format(date,'HH:mm')
-                if (scheduleList.some(time => isWithinInterval(date, {start: strToJST(time.start!), end: strToJST(time.end!)}))) {
-                    obj[dateFormat] = 1
+                const date = addMinutes(dayStart, i * 5)
+                const datePlusSeconds = addSeconds(date, 1)
+                const dateFormat = format(date,'yyyy/MM/dd HH:mm:ss')
+                if (scheduleList.some(time => isWithinInterval(datePlusSeconds, {start: strToJST(time.start!), end: strToJST(time.end!)}))) {
+                    obj[dateFormat] = true
                 } else {
-                    obj[dateFormat] = 0
+                    obj[dateFormat] = false
                 }
             }
             const csvStr = objectToCSV(obj)
@@ -77,7 +78,7 @@ function strToJST(time: string) {
     return utcToZonedTime(parseISO(time), 'Asia/Tokyo')
 }
 
-function objectToCSV(obj: {[key: string]: number}) {
+function objectToCSV(obj: {[key: string]: boolean}) {
     const header = `time,usage\n`
     const body = Object.keys(obj).sort().map(key => {
         return key +','+obj[key]
